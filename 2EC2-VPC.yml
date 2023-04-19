@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyVPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: "MyVPC"
+  PublicSubnet1:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: us-east-1a
+      CidrBlock: "10.0.1.0/24"
+      VpcId: !Ref MyVPC
+      Tags:
+        - Key: Name
+          Value: "PublicSubnet1"
+  PublicSubnet2:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: us-east-1b
+      CidrBlock: "10.0.2.0/24"
+      VpcId: !Ref MyVPC
+      Tags:
+        - Key: Name
+          Value: "PublicSubnet2"
+  MyInternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+    Properties:
+      Tags:
+        - Key: Name
+          Value: "MyInternetGateway"
+  MyGatewayAttachment:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId: !Ref MyVPC
+      InternetGatewayId: !Ref MyInternetGateway
+  MySecurityGroup1:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupName: "MySecurityGroup1"
+      GroupDescription: "Allow SSH and HTTP traffic for Instance1"
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: "0.0.0.0/0"
+  MySecurityGroup2:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupName: "MySecurityGroup2"
+      GroupDescription: "Allow SSH and HTTP traffic for Instance2"
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: "0.0.0.0/0"
+  MyInstance1:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0bde1eb2c18cb2abe
+      SubnetId: !Ref PublicSubnet1
+      SecurityGroupIds:
+        - !Ref MySecurityGroup1
+      AvailabilityZone: us-east-1a
+  MyInstance2:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0bde1eb2c18cb2abe
+      SubnetId: !Ref PublicSubnet2
+      SecurityGroupIds:
+        - !Ref MySecurityGroup2
+      AvailabilityZone: us-east-1b
