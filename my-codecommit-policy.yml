@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyIAMUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      UserName: my-iam-user-name
+
+  MyCodeCommitPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: my-codecommit-policy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - codecommit:GitPull
+              - codecommit:GitPush
+            Resource: arn:aws:codecommit:us-east-1:123456789012:my-repo-name
+      Users:
+        - !Ref 'MyIAMUser'

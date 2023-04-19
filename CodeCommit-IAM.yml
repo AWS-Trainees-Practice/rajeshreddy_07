@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  MyCodeCommitRepo:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: my-repo-name
+
+  MyIAMUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: my-iam-user
+
+  MyIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: my-iam-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codecommit.amazonaws.com
+            Action: sts:AssumeRole
+
+  MyIAMPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: my-iam-policy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - codecommit:GitPull
+              - codecommit:GitPush
+              - codecommit:CreateBranch
+              - codecommit:DeleteBranch
+              - codecommit:MergeBranchesByFastForward
+              - codecommit:MergeBranchesBySquash
+              - codecommit:MergeBranchesByThreeWay
+              - codecommit:PutFile
+              - codecommit:DeleteFile
+              - codecommit:GetFolder
+              - codecommit:PutFolder
+              - codecommit:ListBranches
+              - codecommit:ListRepositories
+              - codecommit:BatchGetCommits
+              - codecommit:TestRepositoryTriggers
+              - codecommit:CreateCommit
+              - codecommit:GetRepository
+            Resource: !Join ['', ['arn:aws:codecommit:*:', !Ref 'AWS::AccountId', ':', !Ref 'MyCodeCommitRepo']]
+      Roles:
+        - !Ref 'MyIAMRole'
+
+  MyIAMRolePolicyAttachment:
+    Type: AWS::IAM::PolicyAttachment
+    Properties:
+      PolicyArn: !Ref 'MyIAMPolicy'
+      Roles:
+        - !Ref 'MyIAMRole'
